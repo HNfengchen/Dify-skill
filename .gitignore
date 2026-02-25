@@ -1,4 +1,4 @@
-# Dify deployment directory (contains sensitive data)
+# Dify 部署目录（源码）
 dify-deploy/
 
 # Python
@@ -23,12 +23,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# 环境变量
 .env
-.venv
-env/
-venv/
-ENV/
+.env.local
+.env.*.local
 
 # IDE
 .idea/
@@ -37,15 +35,16 @@ ENV/
 *.swo
 *~
 
-# OS
+# 系统文件
 .DS_Store
 Thumbs.db
 
-# Logs
+# 日志
 *.log
 logs/
 
-# Temporary files
+# 临时文件
+tmp/
+temp/
 *.tmp
 *.temp
-.cache/
