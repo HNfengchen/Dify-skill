@@ -185,9 +185,140 @@ ss -tlnp | grep 11434
 # 错误: LISTEN 0  4096  127.0.0.1:11434  0.0.0.0:*
 ```
 
-### 3. 插件安装
+### 3. 插件安装与打包
 
 支持通过 GitHub URL、本地路径或 Marketplace 安装插件。
+
+#### 3.1 安装 Dify CLI 工具
+
+**方法一：通过 Homebrew 安装（推荐 macOS/Linux）**
+
+```bash
+brew tap langgenius/dify
+brew install dify
+
+# 验证安装
+dify version
+```
+
+**方法二：通过二进制文件安装（WSL/Linux）**
+
+```bash
+# 下载 Dify Plugin CLI
+# 根据系统架构选择对应版本：
+# - Linux amd64: dify-plugin-linux-amd64
+# - Linux arm64: dify-plugin-linux-arm64
+# - macOS intel: dify-plugin-darwin-amd64
+# - macOS arm64 (M系列): dify-plugin-darwin-arm64
+
+curl -LO https://github.com/langgenius/dify-plugin-daemon/releases/latest/download/dify-plugin-linux-amd64
+chmod +x dify-plugin-linux-amd64
+sudo mv dify-plugin-linux-amd64 /usr/local/bin/dify
+
+# 验证安装
+dify version
+```
+
+#### 3.2 创建插件项目
+
+**交互式创建：**
+
+```bash
+dify plugin init
+# 按提示填写：
+# - Plugin name: my-plugin
+# - Author: your-name
+# - Description: 插件描述
+# - Language: python
+# - Plugin type: tool
+```
+
+**命令行快速创建：**
+
+```bash
+dify plugin init \
+  --name postgres-file-reader \
+  --author "dify-community" \
+  --description "A Dify plugin for reading PostgreSQL files" \
+  --category tool \
+  --language python \
+  --allow-tool \
+  --quick
+```
+
+**参数说明：**
+
+| 参数 | 说明 |
+|------|------|
+| `--name` | 插件名称（1-128字符，小写字母、数字、连字符、下划线） |
+| `--author` | 作者名称（1-64字符，小写字母、数字、连字符、下划线） |
+| `--description` | 插件描述 |
+| `--category` | 插件类型：tool、llm、text-embedding、speech2text、moderation、rerank、tts-strategy |
+| `--language` | 编程语言：、extension、agentpython |
+| `--allow-*` | 允许的权限：--allow-tool、--allow-llm、--allow-model 等 |
+| `--quick` | 跳过交互模式直接创建 |
+
+#### 3.3 打包插件
+
+```bash
+# 进入插件目录的父目录
+cd /path/to/plugins
+
+# 打包插件
+dify plugin package ./my-plugin
+
+# 输出文件：my-plugin.difypkg
+```
+
+**打包结果：**
+
+```
+✓ plugin packaged successfully
+output_path=my-plugin.difypkg
+```
+
+#### 3.4 关闭插件签名验证（开发环境）
+
+打包的插件在安装时可能会遇到签名验证错误：
+
+**错误信息：**
+```
+PluginDaemonBadRequestError: plugin verification has been enabled, 
+and the plugin you want to install has a bad signature
+```
+
+**解决方案：**
+
+1. 创建或编辑 `docker/middleware.env` 文件：
+
+```bash
+cp docker/middleware.env.example docker/middleware.env
+```
+
+2. 修改签名验证配置：
+
+```bash
+# 编辑 middleware.env 文件
+FORCE_VERIFYING_SIGNATURE=false
+```
+
+3. 重启 Dify 服务：
+
+```bash
+cd dify/docker
+docker compose restart
+
+# 或仅重启插件服务
+docker compose restart plugin_daemon
+```
+
+#### 3.5 在 Dify 中安装插件
+
+1. 打开 Dify 控制台：http://localhost
+2. 进入 **设置** → **插件**
+3. 点击 **安装插件**
+4. 选择 `.difypkg` 文件上传
+5. 配置必要的连接信息（如 API Key、数据库连接等）
 
 **使用脚本安装：**
 
@@ -204,27 +335,6 @@ python scripts/install_plugin.py https://github.com/user/dify-plugin --package-o
 # 调试模式
 python scripts/install_plugin.py https://github.com/user/dify-plugin --debug --dify-dir /opt/dify
 ```
-
-**手动安装步骤：**
-
-1. 安装 Dify CLI 工具：
-```bash
-# macOS/Linux (Homebrew)
-brew tap langgenius/dify
-brew install dify
-
-# Linux (二进制)
-curl -LO https://github.com/langgenius/dify-plugin-daemon/releases/latest/download/dify-plugin-linux-amd64
-chmod +x dify-plugin-linux-amd64
-sudo mv dify-plugin-linux-amd64 /usr/local/bin/dify
-```
-
-2. 打包插件：
-```bash
-dify plugin package ./my-plugin
-```
-
-3. 在 Dify 控制台上传 `.difypkg` 文件
 
 ### 4. 插件开发辅助
 
@@ -289,12 +399,13 @@ force_verifying_signature=false
     │   ├─ 重启 Dify 服务
     │   └─ 在 Dify 中添加模型提供商
     │
-    ├─ 安装插件?
-    │   ├─ 检查 Python 版本
-    │   ├─ 安装 Dify CLI
-    │   ├─ 获取插件源码
-    │   ├─ 打包插件
-    │   └─ 上传安装
+    ├─ 打包插件?
+    │   ├─ 安装 Dify CLI（Homebrew 或二进制）
+    │   ├─ 创建插件项目（dify plugin init）
+    │   ├─ 编写插件代码
+    │   ├─ 打包插件（dify plugin package）
+    │   ├─ 关闭签名验证（开发环境）
+    │   └─ 在 Dify 中安装插件
     │
     └─ 开发插件?
         ├─ 创建插件项目
@@ -395,16 +506,68 @@ docker compose pull
 
 ### 插件安装失败
 
-```bash
-# 检查 Python 版本
-python --version  # 需要 >= 3.12
+#### 3.6.1 签名验证错误
 
-# 检查 Dify CLI
-dify version
-
-# 检查网络连接
-curl -I https://github.com
+**错误信息：**
 ```
+PluginDaemonBadRequestError: plugin verification has been enabled, 
+and the plugin you want to install has a bad signature
+```
+
+**解决方案：**
+
+1. 关闭插件签名验证：
+```bash
+# 创建 middleware.env 文件
+cp docker/middleware.env.example docker/middleware.env
+
+# 修改配置
+FORCE_VERIFYING_SIGNATURE=false
+
+# 重启服务
+docker compose restart plugin_daemon
+```
+
+2. 重新安装插件
+
+#### 3.6.2 Dify CLI 未找到
+
+**错误信息：**
+```
+Command 'dify' not found
+```
+
+**解决方案：**
+```bash
+# 刷新 PATH
+source ~/.bashrc
+
+# 或使用完整路径
+~/.local/bin/dify --version
+```
+
+#### 3.6.3 打包失败 - YAML 解析错误
+
+**错误信息：**
+```
+Error: error parsing plugin.yaml: error parsing manifest: 
+error parsing plugin.yaml: Error on line XX: ...
+```
+
+**解决方案：**
+
+1. 检查 YAML 格式是否正确（缩进、引号等）
+2. 确保使用正确的字段名：
+   - ✅ `plugin: tool`
+   - ❌ `plugins: [tool]`
+3. 使用 `dify plugin init` 创建标准项目结构
+
+#### 3.6.4 插件打包后文件过大
+
+**建议：**
+- 移除不必要的依赖
+- 使用 `requirements.txt` 精确指定版本
+- 排除测试文件和文档
 
 ### 数据库连接问题
 
@@ -430,6 +593,18 @@ docker compose exec db psql -U postgres -d dify
 2. **使用 host.docker.internal**：这是 Docker 官方推荐的宿主机访问方式
 3. **三个服务都要配置**：`api`、`worker`、`worker_beat` 都需要访问外部服务
 4. **配置后必须重启**：修改 `docker-compose.yaml` 后需要 `docker compose down && up`
+
+### 插件打包最佳实践
+
+1. **使用官方工具创建项目**：始终使用 `dify plugin init` 创建项目结构，避免手动创建导致的格式错误
+2. **关闭开发环境签名验证**：安装插件前确保 `FORCE_VERING_SIGNATURE=false`
+3. **CLI 安装方式选择**：
+   - WSL/Linux：推荐使用二进制文件安装
+   - macOS：推荐使用 Homebrew 安装
+4. **打包前检查**：
+   - 确保 `manifest.yaml` 格式正确
+   - 确保 `requirements.txt` 包含所有依赖
+   - 确保 Python 版本 >= 3.12
 
 ### WSL 环境特殊处理
 

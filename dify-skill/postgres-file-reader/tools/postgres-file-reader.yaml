@@ -1,0 +1,34 @@
+identity:
+  name: "postgres-file-reader"
+  author: "dify-community"
+  label:
+    en_US: "postgres-file-reader"
+    zh_Hans: "postgres-file-reader"
+    pt_BR: "postgres-file-reader"
+    ja_JP: "postgres-file-reader"
+description:
+  human:
+    en_US: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+    zh_Hans: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+    pt_BR: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+    ja_JP: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+  llm: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+parameters:
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句
+      pt_BR: Query string
+      ja_JP: クエリ文字列
+    human_description:
+      en_US: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+      zh_Hans: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+      pt_BR: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+      ja_JP: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+    llm_description: "A Dify plugin that enables LLM to read files stored in PostgreSQL database"
+    form: llm
+extra:
+  python:
+    source: tools/postgres-file-reader.py

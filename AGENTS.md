@@ -1,94 +1,94 @@
 # AGENTS.md
 
-## 项目概述
+## Project Overview
 
-Dify 是一个开源的 LLM 应用开发平台，提供直观的界面，集成 Agent 工作流、RAG 管道、Agent 能力和模型管理功能。
+Dify is an open-source platform for developing LLM applications with an intuitive interface combining agentic AI workflows, RAG pipelines, agent capabilities, and model management.
 
-代码库位于 `/home/fengchen/projects/Dify/dify-deploy/`，分为以下部分：
-- **后端 API** (`/api`): Python Flask 应用，采用领域驱动设计
-- **前端 Web** (`/web`): Next.js 应用，使用 TypeScript 和 React
-- **Docker 部署** (`/docker`): 容器化部署配置
+The codebase is in `/home/fengchen/projects/Dify/dify-deploy/` and is split into:
+- **Backend API** (`/api`): Python Flask application organized with Domain-Driven Design
+- **Frontend Web** (`/web`): Next.js application using TypeScript and React
+- **Docker deployment** (`/docker`): Containerized deployment configurations
 
 ---
 
-## 构建/代码检查/测试命令
+## Build/Lint/Test Commands
 
-### 开发环境设置
-
-```bash
-cd /home/fengchen/projects/Dify/dify-deploy
-make dev-setup              # 运行所有设置步骤
-make prepare-docker         # 设置 Docker 中间件（Redis、数据库等）
-make prepare-web            # 设置前端环境（pnpm install）
-make prepare-api            # 设置后端环境（uv sync + db upgrade）
-```
-
-### 后端命令 (Python/Flask)
-
-通过 `uv run --project api <command>` 运行命令：
+### Setup Development Environment
 
 ```bash
 cd /home/fengchen/projects/Dify/dify-deploy
-
-# 格式化和代码检查
-make format                 # 使用 ruff 格式化代码
-make check                 # 使用 ruff 检查代码
-make lint                  # 格式化、修复和代码检查（ruff、imports、dotenv）
-
-# 类型检查
-make type-check             # 运行类型检查（basedpyright、mypy、ty）
-
-# 测试
-make test                   # 运行所有后端单元测试
-make test TARGET_TESTS=./api/tests/<path_to_test.py>  # 运行单个测试
-# 示例：make test TARGET_TESTS=./api/tests/unit/core/workflow/test_node_executor.py
+make dev-setup              # Run all setup steps
+make prepare-docker         # Set up Docker middleware (Redis, DB, etc.)
+make prepare-web            # Set up web environment (pnpm install)
+make prepare-api            # Set up API environment (uv sync + db upgrade)
 ```
 
-### 前端命令 (TypeScript/Next.js)
+### Backend Commands (Python/Flask)
+
+Run commands through `uv run --project api <command>`:
+
+```bash
+cd /home/fengchen/projects/Dify/dify-deploy
+
+# Format & Lint
+make format                 # Format code with ruff
+make check                  # Check code with ruff
+make lint                   # Format, fix, and lint (ruff, imports, dotenv)
+
+# Type Check
+make type-check             # Run type checks (basedpyright, mypy, ty)
+
+# Testing
+make test                   # Run all backend unit tests
+make test TARGET_TESTS=./api/tests/<path_to_test.py>  # Run single test
+# Example: make test TARGET_TESTS=./api/tests/unit/core/workflow/test_node_executor.py
+```
+
+### Frontend Commands (TypeScript/Next.js)
 
 ```bash
 cd /home/fengchen/projects/Dify/dify-deploy/web
 
-pnpm install                # 安装依赖
-pnpm dev                    # 启动开发服务器
-pnpm build                  # 构建生产版本
-pnpm lint:fix               # 修复代码检查问题（推荐）
-pnpm type-check:tsgo       # TypeScript 类型检查
+pnpm install                # Install dependencies
+pnpm dev                    # Start development server
+pnpm build                  # Build for production
+pnpm lint:fix               # Fix lint issues (preferred)
+pnpm type-check:tsgo       # TypeScript type checking
 ```
 
-### Docker 命令
+### Docker Commands
 
 ```bash
 cd /home/fengchen/projects/Dify/dify-deploy/docker
 
-docker compose up -d                    # 启动所有服务
-docker compose down                      # 停止所有服务
-docker compose -f docker-compose.middleware.yaml up -d  # 仅启动中间件
+docker compose up -d                    # Start all services
+docker compose down                      # Stop all services
+docker compose -f docker-compose.middleware.yaml up -d  # Start middleware only
 ```
 
 ---
 
-## 代码风格指南
+## Code Style Guidelines
 
-### Python (后端)
+### Python (Backend)
 
-**格式化和代码检查：**
-- 使用 Ruff 进行格式化和代码检查（遵循 `.ruff.toml`）
-- 每行不超过 120 个字符
-- 提交前运行 `make lint`
+**Formatting & Linting:**
+- Use Ruff for formatting and linting (follow `.ruff.toml`)
+- Keep each line under 120 characters
+- Run `make lint` before submitting
 
-**命名约定：**
-- 变量/函数：`snake_case`
-- 类：`PascalCase`
-- 常量：`UPPER_CASE`
+**Naming Conventions:**
+- Variables/functions: `snake_case`
+- Classes: `PascalCase`
+- Constants: `UPPER_CASE`
 
-**类型提示：**
-- 使用现代类型形式：`list[str]`、`dict[str, int]`
-- 除非有充分理由，否则避免使用 `Any`
-- 在函数和属性上保留类型提示
-- 实现相关的特殊方法（`__repr__`、`__str__`）
+**Typing:**
+- Use modern typing forms: `list[str]`, `dict[str, int]`
+- Avoid `Any` unless there's a strong reason
+- Keep type hints on functions and attributes
+- Implement relevant special methods (`__repr__`, `__str__`)
 
-**类布局：**
+**Class Layout:**
 ```python
 from datetime import datetime
 
@@ -101,88 +101,88 @@ class Example:
         self.created_at = created_at
 ```
 
-**错误处理：**
-- 永远不要使用 `print`；使用 `logger = logging.getLogger(__name__)`
-- 抛出领域特定的异常（`services/errors`、`core/errors`）
-- 在控制器中将异常转换为 HTTP 响应
-- 可重试事件记录为 `warning`，终端失败记录为 `error`
+**Error Handling:**
+- Never use `print`; use `logger = logging.getLogger(__name__)`
+- Raise domain-specific exceptions (`services/errors`, `core/errors`)
+- Translate exceptions into HTTP responses in controllers
+- Log retryable events at `warning`, terminal failures at `error`
 
-**SQLAlchemy 模式：**
-- 模型继承自 `models.base.TypeBase`
-- 使用上下文管理器管理会话：
+**SQLAlchemy Patterns:**
+- Models inherit from `models.base.TypeBase`
+- Use context managers for sessions:
 ```python
 with Session(db.engine, expire_on_commit=False) as session:
     stmt = select(Model).where(...)
     result = session.execute(stmt).scalar_one_or_none()
 ```
-- 始终按 `tenant_id` 限定查询范围
+- Always scope queries by `tenant_id`
 
-**Pydantic v2：**
-- 使用 Pydantic v2 定义 DTO，默认禁止 extras
-- 使用 `@field_validator` / `@model_validator` 实现领域规则
+**Pydantic v2:**
+- Define DTOs with Pydantic v2, forbid extras by default
+- Use `@field_validator` / `@model_validator` for domain rules
 
-### TypeScript/React (前端)
+### TypeScript/React (Frontend)
 
-- 使用严格的 TypeScript 配置
-- 避免使用 `any` 类型
-- 运行 `pnpm lint:fix` 自动修复
-- 运行 `pnpm type-check:tsgo` 进行类型检查
+- Use strict TypeScript config
+- Avoid `any` types
+- Run `pnpm lint:fix` for auto-fixing
+- Run `pnpm type-check:tsgo` for type checking
 
 ---
 
-## 架构与模式
+## Architecture & Patterns
 
-### 后端（DDD + 清洁架构）
+### Backend (DDD + Clean Architecture)
 
 ```
 controller → service → core/domain
 ```
 
-- **Controllers**: 通过 Pydantic 解析输入，调用服务，返回序列化的响应；不含业务逻辑
-- **Services**: 协调仓储、提供商、后台任务；保持副作用显式
-- 使用 `configs.dify_config` 进行配置——不要直接读取环境变量
-- 端到端保持租户感知；`tenant_id` 必须贯穿每一层
-- 通过 `services/async_workflow_service` 排队异步工作；在 `tasks/` 下实现任务
+- **Controllers**: Parse input via Pydantic, invoke services, return serialized responses; no business logic
+- **Services**: Coordinate repositories, providers, background tasks; keep side effects explicit
+- Use `configs.dify_config` for configuration—never read environment variables directly
+- Maintain tenant awareness end-to-end; `tenant_id` must flow through every layer
+- Queue async work through `services/async_workflow_service`; implement tasks under `tasks/`
 
-### 前端
+### Frontend
 
-- 用户可见的字符串必须使用 `web/i18n/en-US/`；避免硬编码文本
-- 遵循 `web/docs/test.md` 中的测试指南
-
----
-
-## 测试实践
-
-**后端：**
-- 遵循 TDD：red → green → refactor
-- 使用 `pytest` 的 Arrange-Act-Assert 结构
-- 运行单个测试：`make test TARGET_TESTS=./api/tests/<path>`
-
-**前端：**
-- 遵循 `./docs/test.md` 生成测试
-- 测试必须符合 `frontend-testing` skill 规范
+- User-facing strings must use `web/i18n/en-US/`; avoid hardcoded text
+- Follow the testing guidelines in `web/docs/test.md`
 
 ---
 
-## 通用实践
+## Testing Practices
 
-- 优先编辑现有文件；只有在明确要求时才添加新文档
-- 通过构造函数注入依赖
-- 保持文件在 ~800 行以内；必要时拆分
-- 编写自解释代码；只添加解释意图的注释
-- 在修改代码前阅读模块/类/函数的文档字符串——将其视为规范的一部分
-- 如果文档字符串与代码冲突，以代码为准并更新文档
+**Backend:**
+- Follow TDD: red → green → refactor
+- Use `pytest` with Arrange-Act-Assert structure
+- Run single test: `make test TARGET_TESTS=./api/tests/<path>`
+
+**Frontend:**
+- Follow `./docs/test.md` for test generation
+- Tests must comply with the `frontend-testing` skill
 
 ---
 
-## 快速参考
+## General Practices
 
-| 任务 | 命令 |
-|------|------|
-| 格式化后端 | `make format` |
-| 代码检查后端 | `make lint` |
-| 类型检查后端 | `make type-check` |
-| 运行后端测试 | `make test` |
-| 运行单个测试 | `make test TARGET_TESTS=./api/tests/...` |
-| 代码检查前端 | `pnpm lint:fix` |
-| 类型检查前端 | `pnpm type-check:tsgo` |
+- Prefer editing existing files; add new documentation only when requested
+- Inject dependencies through constructors
+- Keep files below ~800 lines; split when necessary
+- Write self-documenting code; only add comments that explain intent
+- Read module/class/function docstrings before changing code—treat them as part of the spec
+- If docstrings conflict with code, treat code as the source of truth and update docs
+
+---
+
+## Quick Reference
+
+| Task | Command |
+|------|---------|
+| Format backend | `make format` |
+| Lint backend | `make lint` |
+| Type-check backend | `make type-check` |
+| Run backend tests | `make test` |
+| Run single test | `make test TARGET_TESTS=./api/tests/...` |
+| Lint frontend | `pnpm lint:fix` |
+| Type-check frontend | `pnpm type-check:tsgo` |
