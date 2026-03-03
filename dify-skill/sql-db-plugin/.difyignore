@@ -170,15 +170,9 @@ cython_debug/
 # Git
 .git/
 .gitignore
-.github/
 
 # Mac
 .DS_Store
 
 # Windows
 Thumbs.db
-
-# Dify plugin packages
-#  To prevent packaging repetitively
-*.difypkg
-

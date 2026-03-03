@@ -1,0 +1,16 @@
+dify_plugin~=0.0.1b72
+sqlalchemy>=2.0.0
+
+# PostgreSQL (binary package, no system dependencies)
+psycopg2-binary>=2.9.9
+
+# MySQL (pure Python driver, no system dependencies)
+pymysql>=1.1.0
+
+# Oracle (pure Python driver, no system dependencies)
+oracledb>=1.4.0
+
+# SQLite (built-in, no extra package needed)
+
+# Other utilities
+python-dateutil>=2.8.0
